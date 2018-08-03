@@ -1,4 +1,4 @@
-static const acronyms = {
+export const acronyms = {
   epic: {
     acronym: 'EPIC',
     description: 'Excellence Passion Integrity Collaboration',
@@ -27,4 +27,4 @@ static const acronyms = {
     acronym: 'IDE',
     description: 'Integrated Development Environment',
   },
-}
+};

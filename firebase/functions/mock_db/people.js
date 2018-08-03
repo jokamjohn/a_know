@@ -1,4 +1,4 @@
-static const people = {
+export const people = {
   jeremy_johnshon: {
     department: 'Executive',
     name: 'Jeremy Johnson',
@@ -59,4 +59,4 @@ static const people = {
     role: 'Long Term Engineer on the Andela Information System Team',
     image: 'https://10c237484c476452bb62-4bdd3b1df7b1853b542aef732aec817c.ssl.cf1.rackcdn.com/photos/841-0-4.jpg'
   }
-}
+};

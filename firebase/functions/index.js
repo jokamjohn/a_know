@@ -7,6 +7,7 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
+const people = require('mock_db/people');
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -36,57 +37,45 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
   // // below to get this function to be run when a Dialogflow intent is matched
    function yourFunctionHandler(agent) {
-     agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
-     agent.add(new Card({
-         title: `Title: Andela know`,
-         imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-         text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-         buttonText: 'This is a button',
-         buttonUrl: 'https://assistant.google.com/'
-       })
-     );
-     agent.add(new Suggestion(`Quick Reply`));
-     agent.add(new Suggestion(`Suggestion`));
-     agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
-   }
-
-  // // Uncomment and edit to make your own Google Assistant intent handler
-  // // uncomment `intentMap.set('your intent name here', getAcronymInFull);`
-  // // below to get this function to be run when a Dialogflow intent is matched
-   function getAcronymInFull(agent) {
-     let nameRef = db.collection(ACRONYMS).doc(parameters.Acronym);
-     return nameRef.get()
-         .then(doc => {
-           if (!doc.exists) {
-             agent.add('Sorry we cannot find that acronym')
-           } else {
-             agent.add(doc.data().description)
-           }
-         })
-         .catch(err => {
-           console.log('Error getting document', err);
-         });
+       agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
+       agent.add(new Card({
+           title: `Title: Andela know`,
+           imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+           text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
+           buttonText: 'This is a button',
+           buttonUrl: 'https://assistant.google.com/'
+       }));
+       agent.add(new Suggestion(`Quick Reply`));
+       agent.add(new Suggestion(`Suggestion`));
+       agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
    }
 
    function getRoleByPerson(agent) {
-      const givenName = request.body.queryResult.parameters['given-name'];
-      const lastName = request.body.queryResult.parameters['last-name'];
+       const givenName = request.body.queryResult.parameters['given-name'];
+       const lastName = request.body.queryResult.parameters['last-name'];
+       const name = `${givenName}_${lastName}`;
 
-     let peopleRef = db.collection('people');
-     peopleRef.where("name", "==", `${givenName} ${lastName}`);
-
-     return peopleRef.get()
-         .then(doc => {
-           if (!doc.exists) {
-             agent.add('Sorry we cannot find that person')
-           } else {
-             agent.add(doc.data().role)
-           }
-         })
-         .catch(err => {
-           console.log('Error getting person by Role', err);
-         });
+       if (people.hasOwnProperty(name)){
+          const person = people.name;
+          agent.add(person.role)
+       }else {
+          agent.add('Sorry we cannot find that person')
+       }
    }
+
+   function getPersonByRole(agent) {
+       const role = request.body.queryResult.parameters['Role'];
+
+       for ( let key in people){
+           if(people.hasOwnProperty(key) && people.key.role === role){
+               agent.add(new Card(people.key));
+               return;
+           }
+       }
+       agent.add('Sorry we cannot find that role')
+   }
+
+
   // // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/samples/actions-on-google
   // // for a complete Dialogflow fulfillment library Actions on Google client library v2 integration sample
 
@@ -95,7 +84,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
   intentMap.set('GetTeamByName', yourFunctionHandler);
-  intentMap.set('GetAcronymMeaning', googleAssistantHandler);
-  intentMap.set('GetPersonByRole', getRoleByPerson());
+  intentMap.set('GetPersonByRole', getPersonByRole());
+  intentMap.set('GetRoleByPerson', getRoleByPerson());
   agent.handleRequest(intentMap);
 });
