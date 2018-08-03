@@ -8,7 +8,7 @@ static const people = {
   simon_ssekamatte: {
     department: 'Technology',
     name: 'Simon Ssekamatte',
-    role: 'Long Term Engineer on the Pulse Team',
+    role: 'Long Term Engineer on the Feedback Team',
     image: 'https://10c237484c476452bb62-4bdd3b1df7b1853b542aef732aec817c.ssl.cf1.rackcdn.com/photos/914-1-4.jpg'
   },
   ebun_omoni: {
@@ -44,19 +44,19 @@ static const people = {
   gordon_kisakye: {
     department: 'Technology',
     name: 'Gordon Kisakye',
-    role: 'Long Term Engineer on the Andela Information System Team',
+    role: 'Long Term Engineer on the Information Team',
     image: 'https://10c237484c476452bb62-4bdd3b1df7b1853b542aef732aec817c.ssl.cf1.rackcdn.com/photos/916-0-4.jpg',
   },
   john_kagga: {
     department: 'Technology',
     name: 'John Kagga',
-    role: 'Long Term Engineer on the Pulse Team',
+    role: 'Long Term Engineer on the Feedback Team',
     image: 'https://10c237484c476452bb62-4bdd3b1df7b1853b542aef732aec817c.ssl.cf1.rackcdn.com/photos/908-0-4.jpg'
   },
   patrick_luboobi: {
     department: 'Technology',
     name: 'Patrick Luboobi',
-    role: 'Long Term Engineer on the Andela Information System Team',
+    role: 'Long Term Engineer on the Information Team',
     image: 'https://10c237484c476452bb62-4bdd3b1df7b1853b542aef732aec817c.ssl.cf1.rackcdn.com/photos/841-0-4.jpg'
   }
 }
