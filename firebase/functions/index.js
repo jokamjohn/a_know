@@ -8,11 +8,14 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
  
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
+
+const googleAssistanceRequest = "google";
  
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
-  // Initialize Firebase Admin SDK.
-  admin.initializeApp();
   let db = admin.firestore();
+
+  const requestSource = (request.body.originalRequest) ? request.body.originalRequest.source : undefined;
+  console.log('source', requestSource);
 
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
@@ -49,16 +52,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   // // uncomment `intentMap.set('your intent name here', googleAssistantHandler);`
   // // below to get this function to be run when a Dialogflow intent is matched
    function googleAssistantHandler(agent) {
-     let conv = agent.conv(); // Get Actions on Google library conv instance
      let nameRef = db.collection('acronyms').doc('yoyo');
      return nameRef.get()
          .then(doc => {
            if (!doc.exists) {
-             conv.ask('No such document!');
+             agent.add('Sorry we cannot find that acronym')
            } else {
-             conv.ask(doc.data().description);
+             agent.add(doc.data().description)
            }
-           agent.add(conv); // Add Actions on Google library responses to your agent's response
          })
          .catch(err => {
            console.log('Error getting document', err);
