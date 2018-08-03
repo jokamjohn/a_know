@@ -1,30 +1,32 @@
 // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs
 // for Dialogflow fulfillment library docs, samples, and to report issues
 'use strict';
- 
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+admin.initializeApp();
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
- 
+
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
 const googleAssistanceRequest = "google";
- 
+
+const ACRONYMS = 'acronyms';
+
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
+  // Initialize Firebase Admin SDK.
   let db = admin.firestore();
 
-  const requestSource = (request.body.originalRequest) ? request.body.originalRequest.source : undefined;
-  console.log('source', requestSource);
-
   const agent = new WebhookClient({ request, response });
-  console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
- 
+
+  const parameters = request.body.queryResult.parameters;
+
   function welcome(agent) {
     agent.add(`Welcome to my agent!`);
   }
- 
+
   function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
@@ -49,10 +51,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
    }
 
   // // Uncomment and edit to make your own Google Assistant intent handler
-  // // uncomment `intentMap.set('your intent name here', googleAssistantHandler);`
+  // // uncomment `intentMap.set('your intent name here', getAcronymInFull);`
   // // below to get this function to be run when a Dialogflow intent is matched
-   function googleAssistantHandler(agent) {
-     let nameRef = db.collection('acronyms').doc('yoyo');
+   function getAcronymInFull(agent) {
+     let nameRef = db.collection(ACRONYMS).doc(parameters.Acronym);
      return nameRef.get()
          .then(doc => {
            if (!doc.exists) {
@@ -73,6 +75,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
   intentMap.set('GetTeamByName', yourFunctionHandler);
-  intentMap.set('GetAcronymMeaning', googleAssistantHandler);
+  intentMap.set('GetAcronymMeaning', getAcronymInFull);
   agent.handleRequest(intentMap);
 });
