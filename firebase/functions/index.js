@@ -67,6 +67,26 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
            console.log('Error getting document', err);
          });
    }
+
+   function getRoleByPerson(agent) {
+      const givenName = request.body.queryResult.parameters['given-name'];
+      const lastName = request.body.queryResult.parameters['last-name'];
+
+     let peopleRef = db.collection('people');
+     peopleRef.where("name", "==", `${givenName} ${lastName}`);
+
+     return peopleRef.get()
+         .then(doc => {
+           if (!doc.exists) {
+             agent.add('Sorry we cannot find that person')
+           } else {
+             agent.add(doc.data().role)
+           }
+         })
+         .catch(err => {
+           console.log('Error getting person by Role', err);
+         });
+   }
   // // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/samples/actions-on-google
   // // for a complete Dialogflow fulfillment library Actions on Google client library v2 integration sample
 
@@ -75,6 +95,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
   intentMap.set('GetTeamByName', yourFunctionHandler);
-  intentMap.set('GetAcronymMeaning', getAcronymInFull);
+  intentMap.set('GetAcronymMeaning', googleAssistantHandler);
+  intentMap.set('GetPersonByRole', getRoleByPerson());
   agent.handleRequest(intentMap);
 });
